@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0f1419">
+<meta name="supported-color-schemes" content="dark">
+<title>Mis Cuentas — Libro personal</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --paper:#0f1419; --paper2:#1a1f2e; --ink:#e8eaed; --ink-soft:#9ca3af;
+  --rule:#2d3748; --card:#1e2633; --brass:#4f94ff; --brass-deep:#3b7dd6;
+  --sage:#4ade80; --rust:#ef4444; --shadow:0 1px 3px rgba(0,0,0,0.3),0 8px 24px rgba(0,0,0,0.2);
+  --safe-top:env(safe-area-inset-top); --safe-bottom:env(safe-area-inset-bottom);
+  --safe-left:env(safe-area-inset-left); --safe-right:env(safe-area-inset-right);
+  --font-display:'Fraunces',serif; --font-body:'Inter',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+}
+html { color-scheme: dark; background:#0f1419; }
+body { background:#0f1419 !important; color:#e8eaed !important; font-family:var(--font-body); min-height:100vh; min-height:100dvh; padding:0 0 calc(84px + var(--safe-bottom)); -webkit-text-size-adjust:100%; forced-color-adjust: none; }
+.mono { font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+
+/* TOPBAR */
+.topbar { background:var(--paper2); color:var(--ink); padding:16px 20px; padding-top:calc(16px + var(--safe-top)); padding-left:calc(20px + var(--safe-left)); padding-right:calc(20px + var(--safe-right)); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; border-bottom:2px solid var(--brass); }
+.topbar h1 { font-family:var(--font-display); font-weight:600; font-size:19px; letter-spacing:-0.01em; color:#e8eaed !important; }
+.topbar .tagline { font-size:9px; color:var(--brass-deep); letter-spacing:0.18em; text-transform:uppercase; font-family:var(--font-mono); font-weight:600; }
+.topbar-actions { display:flex; gap:6px; align-items:center; }
+.btn-topbar { font-family:var(--font-mono); font-size:11px; font-weight:600; letter-spacing:0.03em; padding:7px 11px; border-radius:6px; cursor:pointer; border:1px solid var(--rule); transition:all 0.2s; display:inline-flex; align-items:center; gap:4px; background:var(--card); color:var(--ink); }
+.btn-topbar:hover { background:var(--rule); }
+.btn-topbar.solid { background:var(--brass); color:#ffffff; border-color:var(--brass); }
+.btn-topbar.solid:hover { background:var(--brass-deep); }
+
+/* TABS */
+.tabs { display:flex; background:var(--card); padding-left:calc(0px + var(--safe-left)); padding-right:calc(0px + var(--safe-right)); border-bottom:1px solid var(--rule); gap:0; }
+.tab { font-family:var(--font-body); font-size:12px; font-weight:600; padding:12px 8px; cursor:pointer; color:var(--ink-soft); border-bottom:3px solid transparent; margin-bottom:-1px; transition:all 0.3s; background:none; border-top:none; border-left:none; border-right:none; white-space:nowrap; -webkit-tap-highlight-color:transparent; flex:1; text-align:center; overflow:hidden; text-overflow:ellipsis; }
+.tab.active { color:var(--brass); border-bottom-color:var(--brass); }
+.tab:hover:not(.active) { color:var(--ink); }
+
+/* GESTION SUBSECTION SELECTOR */
+.tab-selector { font-family:var(--font-body); font-size:12px; font-weight:600; padding:10px 16px; cursor:pointer; border-radius:8px; border:1px solid var(--rule); background:var(--card); color:var(--ink-soft); transition:all 0.3s; }
+.tab-selector.active { background:var(--brass); color:#ffffff; border-color:var(--brass); }
+.tab-selector:hover:not(.active) { background:var(--rule); color:var(--ink); }
+.gestion-view { animation:fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+/* LAYOUT */
+.main { max-width:960px; margin:0 auto; padding:22px 16px; padding-left:calc(16px + var(--safe-left)); padding-right:calc(16px + var(--safe-right)); overflow-x:hidden; }
+.page { display:none; } .page.active { display:block; }
+.section-title { font-family:var(--font-display); font-size:22px; font-weight:700; letter-spacing:-0.01em; margin-bottom:16px; display:flex; flex-direction:column; gap:2px; color:#e8eaed !important; }
+.section-title .eyebrow { font-family:var(--font-mono); font-size:10px; color:var(--brass); letter-spacing:0.14em; text-transform:uppercase; font-weight:700; }
+.section-title .title-text { color:#e8eaed !important; }
+
+/* CREDIT CARDS */
+.cards-scroll { display:flex; gap:14px; overflow-x:auto; padding-bottom:8px; margin-bottom:28px; scrollbar-width:none; }
+.cards-scroll::-webkit-scrollbar { display:none; }
+.credit-card { min-width:250px; height:150px; border-radius:10px; padding:18px 20px; position:relative; cursor:pointer; transition:transform 0.2s; flex-shrink:0; overflow:hidden; user-select:none; background:linear-gradient(150deg,var(--c1),var(--c2)); box-shadow:var(--shadow); }
+.credit-card:hover { transform:translateY(-3px); }
+.credit-card::after { content:''; position:absolute; inset:0; background-image:repeating-linear-gradient(transparent,transparent 27px,rgba(255,255,255,0.05) 28px); pointer-events:none; }
+.cc-bank { font-family:var(--font-display); font-weight:600; font-size:15px; color:rgba(255,255,255,0.92); margin-bottom:18px; }
+.cc-total-label { font-size:9px; color:rgba(255,255,255,0.55); letter-spacing:0.16em; text-transform:uppercase; font-family:var(--font-mono); }
+.cc-total { font-family:var(--font-mono); font-weight:700; font-size:23px; color:white; line-height:1; margin-bottom:16px; }
+.cc-bottom { display:flex; justify-content:space-between; align-items:flex-end; }
+.cc-last4 { font-size:12px; color:rgba(255,255,255,0.6); letter-spacing:0.15em; font-family:var(--font-mono); }
+.cc-count { font-size:11px; color:rgba(255,255,255,0.6); font-family:var(--font-mono); }
+.cc-delete { position:absolute; top:9px; right:9px; background:rgba(0,0,0,0.25); border:none; color:rgba(255,255,255,0.75); width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:11px; display:flex; align-items:center; justify-content:center; transition:background 0.2s; z-index:2; }
+.cc-delete:hover { background:var(--rust); color:white; }
+.add-card-btn { min-width:220px; height:150px; border-radius:10px; border:1.5px dashed var(--rule); background:var(--card); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:all 0.2s; flex-shrink:0; color:var(--ink-soft); }
+.add-card-btn:hover { border-color:var(--brass); color:var(--brass-deep); }
+
+/* TOTAL HERO */
+.total-hero { background:var(--card); color:var(--ink); border-radius:10px; padding:28px 30px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:18px; border:1px solid var(--rule); border-left:4px solid var(--brass); position:relative; overflow:hidden; }
+.total-hero-left .lbl { font-family:var(--font-mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--brass-deep); margin-bottom:6px; font-weight:700; }
+.total-hero-left .amt { font-family:var(--font-mono); font-size:40px; font-weight:700; letter-spacing:-0.01em; line-height:1; color:var(--ink); }
+.total-hero-right { display:flex; gap:26px; }
+.hero-stat { text-align:center; }
+.hero-stat-val { font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--ink); }
+.hero-stat-label { font-size:9px; color:var(--ink-soft); letter-spacing:0.1em; text-transform:uppercase; margin-top:2px; font-family:var(--font-mono); }
+
+/* CARD PILLS */
+.card-pills { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+.card-pill { display:flex; align-items:center; gap:7px; padding:7px 13px; border-radius:20px; border:1.5px solid var(--rule); background:var(--card); cursor:pointer; transition:all 0.2s; font-size:12px; font-family:var(--font-body); color:var(--ink-soft); }
+.card-pill .pill-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.card-pill.active { color:var(--ink); border-color:var(--brass); background:var(--paper2); font-weight:600; }
+
+/* SEGMENTED FILTER */
+.seg-filter-block { background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:14px 16px; margin-bottom:20px; display:flex; flex-direction:column; gap:10px; }
+.seg-filter-row { display:flex; flex-direction:column; gap:6px; }
+.seg-filter-label { font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); font-family:var(--font-mono); font-weight:600; }
+.seg-track { display:flex; background:var(--paper2); border-radius:8px; padding:3px; gap:2px; overflow-x:auto; scrollbar-width:none; }
+.seg-track::-webkit-scrollbar { display:none; }
+.seg-btn { flex-shrink:0; padding:7px 14px; border-radius:6px; border:none; background:transparent; font-family:var(--font-body); font-size:12px; color:var(--ink-soft); cursor:pointer; transition:all 0.18s; display:flex; align-items:center; gap:5px; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+.seg-btn.active { background:var(--card); color:var(--ink); font-weight:600; box-shadow:var(--shadow); }
+.seg-btn .pill-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+/* DASHBOARD GRID */
+.dash-grid { display:grid; grid-template-columns:1.1fr 1fr; gap:16px; margin-bottom:24px; align-items:stretch; }
+@media(max-width:760px){ .dash-grid{ grid-template-columns:1fr; } }
+
+/* PERSON CARDS */
+.person-cards-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:24px; width:100%; box-sizing:border-box; }
+.person-total-card { background:var(--card); border:1px solid var(--rule); border-radius:8px; padding:14px; transition:transform 0.2s; min-width:0; overflow:hidden; border-top:3px solid var(--dot,var(--brass)); }
+.person-total-card:hover { transform:translateY(-2px); }
+.person-total-top { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.person-total-name { font-family:var(--font-display); font-weight:600; font-size:14px; }
+.person-total-role { font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.08em; font-family:var(--font-mono); }
+.person-total-amount { font-family:var(--font-mono); font-weight:700; font-size:clamp(13px,4vw,20px); letter-spacing:-0.01em; line-height:1; margin-bottom:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.person-total-count { font-size:11px; color:var(--ink-soft); margin-bottom:10px; }
+.person-total-pct { display:flex; justify-content:space-between; font-size:10px; color:var(--ink-soft); margin-bottom:4px; font-family:var(--font-mono); }
+.person-total-pct-bar { height:4px; background:var(--paper2); border-radius:2px; overflow:hidden; }
+.person-total-pct-fill { height:100%; border-radius:2px; transition:width 0.6s ease; }
+
+/* DONUT CHART */
+.donut-card { background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
+.donut-card h3 { font-family:var(--font-display); font-weight:600; font-size:14px; align-self:flex-start; }
+.donut-wrap { position:relative; width:150px; height:150px; }
+.donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.donut-center .val { font-family:var(--font-mono); font-weight:700; font-size:15px; }
+.donut-center .lbl { font-size:8px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.1em; font-family:var(--font-mono); }
+.donut-legend { display:flex; flex-direction:column; gap:6px; width:100%; }
+.donut-legend-row { display:flex; align-items:center; gap:8px; font-size:11px; }
+.donut-legend-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+.donut-legend-name { flex:1; color:var(--ink-soft); text-transform:capitalize; }
+.donut-legend-val { font-family:var(--font-mono); font-weight:600; }
+
+/* BREAKDOWN */
+.person-breakdown { background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:22px; margin-bottom:20px; width:100%; box-sizing:border-box; overflow:hidden; }
+.person-breakdown h3 { font-family:var(--font-display); font-weight:600; font-size:15px; margin-bottom:18px; letter-spacing:-0.01em; }
+.person-row { display:flex; align-items:center; gap:14px; padding:11px 0; border-bottom:1px dashed var(--rule); }
+.person-row:last-child { border-bottom:none; }
+.person-avatar { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:12px; color:white; text-shadow:0 1px 2px rgba(0,0,0,0.35); flex-shrink:0; }
+.person-info { flex:1; }
+.person-name { font-weight:600; font-size:14px; }
+.person-count { font-size:11px; color:var(--ink-soft); }
+.person-bar-wrap { width:110px; }
+.person-bar-bg { background:var(--paper2); height:5px; border-radius:3px; overflow:hidden; }
+.person-bar { height:100%; border-radius:3px; transition:width 0.5s ease; }
+.person-amount { font-family:var(--font-mono); font-weight:700; font-size:14px; min-width:82px; text-align:right; }
+
+/* BUDGETS */
+.budget-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px dashed var(--rule); }
+.budget-row:last-child{ border-bottom:none; }
+.budget-info{ flex:1; min-width:0; }
+.budget-name{ font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+.budget-bar-bg{ background:var(--paper2); height:7px; border-radius:4px; overflow:hidden; }
+.budget-bar{ height:100%; border-radius:4px; transition:width 0.5s ease; }
+.budget-nums{ font-family:var(--font-mono); font-size:10px; color:var(--ink-soft); margin-top:4px; display:flex; justify-content:space-between; }
+.budget-input{ width:80px; background:var(--paper2); border:1px solid var(--rule); border-radius:6px; padding:6px 8px; font-family:var(--font-mono); font-size:12px; color:var(--ink); outline:none; text-align:right; }
+.budget-input:focus{ border-color:var(--brass); }
+
+/* FORMS */
+.box { background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:22px; margin-bottom:24px; }
+.form-title { font-family:var(--font-display); font-weight:600; font-size:15px; margin-bottom:18px; letter-spacing:-0.01em; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.form-row.three { grid-template-columns:2fr 1fr 1fr; }
+.form-row.full { grid-template-columns:1fr; }
+.field label { display:block; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:5px; font-family:var(--font-mono); }
+.field { display:flex; flex-direction:column; justify-content:flex-start; }
+.field input, .field select { width:100%; background:var(--paper2); border:1px solid var(--rule); border-radius:7px; padding:10px 13px; font-family:var(--font-body); font-size:14px; color:var(--ink); outline:none; transition:border-color 0.2s; height:44px; line-height:1.5; text-align:left; box-sizing:border-box; }
+.field input[type="date"], .field input[type="time"], .field input[type="datetime-local"] { width:100% !important; max-width:100% !important; padding:10px 13px !important; text-align:left !important; -webkit-appearance:none !important; -moz-appearance:none !important; appearance:none !important; }
+.field input:focus, .field select:focus { border-color:var(--brass); }
+.btn-primary { background:var(--brass); color:#fffdf8; border:1px solid var(--brass); border-radius:7px; padding:11px 26px; font-family:var(--font-mono); font-weight:600; font-size:12px; letter-spacing:0.05em; cursor:pointer; transition:all 0.2s; text-transform:uppercase; }
+.btn-primary:hover { background:var(--brass-deep); border-color:var(--brass-deep); color:#fffdf8; }
+.btn-danger { background:none; color:var(--rust); border:1px solid var(--rust); border-radius:6px; padding:5px 10px; font-size:11px; cursor:pointer; transition:all 0.2s; }
+.btn-danger:hover { background:var(--rust); color:white; }
+.btn-edit { background:none; color:var(--sage); border:1px solid var(--sage); border-radius:6px; padding:5px 9px; font-size:12px; cursor:pointer; transition:all 0.2s; line-height:1; }
+.btn-edit:hover { background:var(--sage); }
+.expense-item.editing { border-color:var(--brass); border-width:2px; background:var(--paper2); }
+
+/* EXPENSE LIST */
+.filter-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+.filter-btn { background:var(--card); border:1px solid var(--rule); border-radius:20px; padding:6px 14px; font-size:12px; cursor:pointer; transition:all 0.2s; font-family:var(--font-body); color:var(--ink-soft); }
+.filter-btn.active { background:var(--brass); color:#fffdf8; border-color:var(--brass); }
+.search-box{ position:relative; margin-bottom:14px; }
+.search-box input{ width:100%; background:var(--card); border:1px solid var(--rule); border-radius:8px; padding:11px 14px 11px 36px; font-family:var(--font-body); font-size:14px; color:var(--ink); outline:none; }
+.search-box input:focus{ border-color:var(--brass); }
+.search-box::before{ content:'🔎'; position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:13px; opacity:0.6; }
+.expense-list { display:flex; flex-direction:column; gap:9px; }
+.expense-item { background:var(--card); border:1px solid var(--rule); border-radius:8px; padding:14px 18px; display:flex; align-items:center; gap:14px; animation:slideIn 0.3s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.expense-cat-dot { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+.expense-info { flex:1; min-width:0; }
+.expense-desc { font-weight:600; font-size:14px; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.expense-meta { font-size:11px; color:var(--ink-soft); display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-family:var(--font-mono); }
+.expense-card-tag { display:inline-flex; align-items:center; gap:3px; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600; color:white; }
+.expense-person { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft); white-space:nowrap; }
+.mini-avatar { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:white; text-shadow:0 1px 2px rgba(0,0,0,0.35); flex-shrink:0; }
+.expense-amount { font-family:var(--font-mono); font-weight:700; font-size:15px; min-width:75px; text-align:right; }
+
+/* PROFILES */
+.profiles-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin-bottom:24px; }
+.profile-card { background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:22px; text-align:center; position:relative; }
+.profile-big-avatar { width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:19px; color:white; text-shadow:0 1px 2px rgba(0,0,0,0.35); margin:0 auto 10px; }
+.profile-card-name { font-family:var(--font-display); font-weight:600; font-size:14px; margin-bottom:2px; }
+.profile-card-role { font-size:11px; color:var(--ink-soft); margin-bottom:12px; font-family:var(--font-mono); }
+.profile-card-stat { font-family:var(--font-mono); font-size:17px; font-weight:700; color:var(--brass); }
+.profile-card-stat-label { font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.1em; font-family:var(--font-mono); }
+.profile-delete { position:absolute; top:9px; right:9px; background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:13px; padding:4px; border-radius:4px; transition:color 0.2s; }
+.profile-delete:hover { color:var(--rust); }
+
+/* COLOR PICKER */
+.color-options { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+.color-swatch { width:26px; height:26px; border-radius:50%; border:2px solid transparent; cursor:pointer; transition:transform 0.2s, border-color 0.2s; }
+.color-swatch:hover { transform:scale(1.1); }
+.color-swatch.selected { border-color:var(--ink); transform:scale(1.15); }
+
+/* PDF/CSV BUTTON */
+.btn-export-row{ display:flex; gap:12px; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+.btn-pdf { background:var(--rust); color:white; border:none; border-radius:8px; padding:13px 28px; font-family:var(--font-mono); font-weight:700; font-size:13px; letter-spacing:0.05em; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:8px; text-transform:uppercase; }
+.btn-pdf:hover { filter:brightness(1.1); transform:translateY(-1px); }
+.btn-csv { background:var(--sage); color:white; border:none; border-radius:8px; padding:13px 28px; font-family:var(--font-mono); font-weight:700; font-size:13px; letter-spacing:0.05em; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:8px; text-transform:uppercase; }
+.btn-csv:hover { filter:brightness(1.1); transform:translateY(-1px); }
+
+.deudas-resumen-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.deuda-resumen-card { background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:20px; display:flex; align-items:center; gap:14px; cursor:pointer; transition:all 0.2s; border-left:3px solid var(--rust); }
+.deuda-resumen-card:hover { transform:translateY(-1px); }
+.deuda-resumen-card.total-general { border-left-color:var(--sage); }
+.deuda-resumen-icon { font-size:26px; flex-shrink:0; }
+.deuda-resumen-info { flex:1; }
+.deuda-resumen-label { font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; font-family:var(--font-mono); }
+.deuda-resumen-amount { font-family:var(--font-mono); font-weight:700; font-size:20px; letter-spacing:-0.01em; color:var(--rust); }
+.deuda-resumen-card.total-general .deuda-resumen-amount { color:var(--sage); }
+.deuda-resumen-count { font-size:11px; color:var(--ink-soft); white-space:nowrap; font-family:var(--font-mono); }
+.deuda-resumen-arrow { font-size:18px; color:var(--ink-soft); }
+@media(max-width:500px) { .deudas-resumen-grid { grid-template-columns:1fr; } }
+
+.deuda-item { background:var(--card); border:1px solid var(--rule); border-radius:8px; padding:16px 18px; display:flex; align-items:center; gap:14px; animation:slideIn 0.3s ease; }
+.deuda-item.pagada { opacity:0.5; }
+.deuda-cat-dot { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+.deuda-info { flex:1; }
+.deuda-acreedor { font-weight:600; font-size:14px; margin-bottom:2px; }
+.deuda-meta { font-size:11px; color:var(--ink-soft); font-family:var(--font-mono); }
+.deuda-amount { font-family:var(--font-mono); font-weight:700; font-size:15px; min-width:80px; text-align:right; color:var(--rust); }
+.deuda-amount.pagada { color:var(--sage); text-decoration:line-through; }
+.btn-pagar { background:none; color:var(--sage); border:1px solid var(--sage); border-radius:6px; padding:5px 10px; font-size:11px; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+.btn-pagar:hover { background:var(--sage); color:white; }
+.btn-pagar.pagada { background:var(--sage); color:white; }
+.deuda-badge { display:inline-flex; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600; }
+.deuda-badge.pendiente { background:#fff3e0; color:#a6432e; }
+.deuda-badge.pagada { background:#e8f5e9; color:#3f6b4d; }
+
+/* CORTES */
+.corte-card { background:var(--card); border:1px solid var(--rule); border-radius:10px; margin-bottom:24px; overflow:hidden; }
+.corte-card-header { padding:20px 22px 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.corte-card-title { display:flex; align-items:center; gap:12px; }
+.corte-card-dot { width:13px; height:13px; border-radius:3px; flex-shrink:0; }
+.corte-card-name { font-family:var(--font-display); font-weight:600; font-size:16px; }
+.corte-card-sub { font-size:11px; color:var(--ink-soft); margin-top:1px; font-family:var(--font-mono); }
+.corte-badge-proximo{ display:inline-block; margin-left:8px; font-size:9px; font-family:var(--font-mono); font-weight:700; padding:2px 7px; border-radius:10px; background:var(--brass); color:#1c1a17; text-transform:uppercase; letter-spacing:0.05em; vertical-align:middle; }
+.corte-card-total { font-family:var(--font-mono); font-weight:700; font-size:21px; color:var(--rust); }
+.corte-periodos { border-top:1px solid var(--rule); }
+.corte-periodo { border-bottom:1px dashed var(--rule); }
+.corte-periodo:last-child { border-bottom:none; }
+.corte-periodo-header { padding:14px 22px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; transition:background 0.15s; gap:12px; }
+.corte-periodo-header:hover { background:var(--paper2); }
+.corte-periodo-info { flex:1; }
+.corte-periodo-label { font-family:var(--font-display); font-weight:600; font-size:13px; }
+.corte-periodo-dates { font-size:11px; color:var(--ink-soft); margin-top:2px; font-family:var(--font-mono); }
+.corte-periodo-right { display:flex; align-items:center; gap:14px; }
+.corte-periodo-total { font-family:var(--font-mono); font-weight:700; font-size:14px; }
+.corte-periodo-count { font-size:11px; color:var(--ink-soft); white-space:nowrap; font-family:var(--font-mono); }
+.corte-periodo-arrow { color:var(--ink-soft); font-size:14px; transition:transform 0.2s; }
+.corte-periodo-arrow.open { transform:rotate(90deg); }
+.corte-periodo-body { display:none; padding:0 22px 14px; }
+.corte-periodo-body.open { display:block; }
+.corte-gasto-row { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px dashed var(--rule); }
+.corte-gasto-row:last-child { border-bottom:none; }
+.corte-gasto-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+.corte-gasto-info { flex:1; min-width:0; }
+.corte-gasto-desc { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.corte-gasto-meta { font-size:11px; color:var(--ink-soft); font-family:var(--font-mono); }
+.corte-gasto-amount { font-family:var(--font-mono); font-weight:600; font-size:13px; white-space:nowrap; }
+.corte-sin-corte { background:var(--paper2); border:1px dashed var(--rule); border-radius:8px; padding:14px 18px; margin-bottom:14px; font-size:13px; color:var(--ink-soft); display:flex; align-items:center; gap:10px; }
+.corte-edit-day { display:flex; align-items:center; gap:8px; }
+.corte-edit-day input { width:60px; background:var(--paper2); border:1px solid var(--rule); border-radius:6px; padding:5px 8px; font-size:13px; text-align:center; color:var(--ink); outline:none; font-family:var(--font-mono); }
+.corte-edit-day input:focus { border-color:var(--brass); }
+
+/* CAT DEUDA */
+.cat-prestamo { background:#4a7fb5; }
+.cat-servicio { background:#7b5ea7; }
+.cat-renta    { background:#c8863e; }
+
+.cat-comida{background:#c8863e} .cat-transporte{background:#4a7fb5} .cat-hogar{background:#7b5ea7}
+.cat-salud{background:#3a9e6e} .cat-ocio{background:#c9a227} .cat-ropa{background:#a6432e} .cat-otro{background:#8a8478}
+
+/* EMPTY */
+.empty { text-align:center; padding:50px 20px; color:var(--ink-soft); }
+.empty .empty-icon { font-size:34px; margin-bottom:10px; }
+.empty p { font-size:14px; font-family:var(--font-mono); }
+
+/* TOAST */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(60px); background:var(--card); color:var(--ink); padding:11px 22px; border-radius:8px; font-size:13px; transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.35s; z-index:999; opacity:0; white-space:nowrap; font-family:var(--font-mono); font-weight:600; border:2px solid var(--brass); box-shadow:0 8px 28px rgba(28,26,23,0.18); }
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+@media(min-width:600px) {
+  .person-cards-grid { grid-template-columns:repeat(2,1fr); }
+}
+@media(max-width:600px) {
+  .form-row,.form-row.three{grid-template-columns:1fr;}
+  .total-hero{flex-direction:column;}
+  .total-hero-right{justify-content:space-around;width:100%;}
+  .total-hero-left .amt{font-size:32px;}
+  .credit-card{min-width:210px;height:140px;}
+  .deudas-resumen-grid{grid-template-columns:1fr;}
+  .expense-item{flex-wrap:wrap;gap:8px;}
+  .expense-amount{min-width:auto;}
+  .profiles-grid{grid-template-columns:repeat(2,1fr);}
+  .btn-topbar span.txt { display:none; }
+  .toast{width:calc(100% - 32px);text-align:center;white-space:normal;}
+  .toast.show{bottom:calc(16px + var(--safe-bottom));}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="tagline">Libro de gastos personal</div>
+    <h1>Mis Cuentas</h1>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn-topbar" onclick="document.getElementById('importInput').click()">📂<span class="txt"> Importar</span></button>
+    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn-topbar solid" onclick="exportData()">💾<span class="txt"> Exportar</span></button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPage('resumen',this)">📊 Resumen</button>
+  <button class="tab" onclick="showPage('gastos',this)">💳 Gastos</button>
+  <button class="tab" onclick="showPage('gestion',this)">⚙️ Gestión</button>
+  <button class="tab" onclick="showPage('presupuestos',this)">🎯 Presupuestos</button>
+</div>
+
+<div class="main">
+
+  <!-- RESUMEN -->
+  <div class="page active" id="page-resumen">
+    <div class="section-title"><span class="eyebrow">Página 01</span><span class="title-text">Resumen general</span></div>
+    <div class="seg-filter-block">
+      <div class="seg-filter-row">
+        <div class="seg-filter-label">Periodo</div>
+        <div class="seg-track" id="resumePeriodoPills"></div>
+      </div>
+      <div class="seg-filter-row">
+        <div class="seg-filter-label">Tarjeta</div>
+        <div class="seg-track" id="resumePills"></div>
+      </div>
+    </div>
+    <div class="total-hero">
+      <div class="total-hero-left">
+        <div class="lbl">Total tarjetas</div>
+        <div class="amt mono" id="heroTotal">$0.00</div>
+      </div>
+      <div class="total-hero-right">
+        <div class="hero-stat"><div class="hero-stat-val mono" id="heroMovs">0</div><div class="hero-stat-label">Movimientos</div></div>
+        <div class="hero-stat"><div class="hero-stat-val mono" id="heroPersonas">0</div><div class="hero-stat-label">Personas</div></div>
+      </div>
+    </div>
+
+    <div class="deudas-resumen-grid" style="margin-bottom:28px;">
+      <div class="deuda-resumen-card" onclick="showPage('deudas',document.querySelectorAll('.tab')[5])">
+        <div class="deuda-resumen-icon">💰</div>
+        <div class="deuda-resumen-info">
+          <div class="deuda-resumen-label">Deudas pendientes</div>
+          <div class="deuda-resumen-amount mono" id="resumeDeudasTotal">$0.00</div>
+        </div>
+        <div class="deuda-resumen-count"><span id="resumeDeudasCount">0</span> deudas</div>
+        <div class="deuda-resumen-arrow">→</div>
+      </div>
+      <div class="deuda-resumen-card total-general" style="cursor:default;">
+        <div class="deuda-resumen-icon">📊</div>
+        <div class="deuda-resumen-info">
+          <div class="deuda-resumen-label">Total general (tarjetas + deudas)</div>
+          <div class="deuda-resumen-amount mono" id="resumeTotalGeneral">$0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="person-breakdown" style="margin-bottom:0;">
+        <h3>Comparativo por persona</h3>
+        <div id="breakdownList"><div class="empty"><div class="empty-icon">📊</div><p>Sin datos aún.</p></div></div>
+      </div>
+      <div class="donut-card">
+        <h3>Por categoría</h3>
+        <div class="donut-wrap"><svg id="donutSvg" viewBox="0 0 42 42" width="150" height="150"></svg>
+          <div class="donut-center"><div class="val mono" id="donutTotal">$0</div><div class="lbl">total</div></div>
+        </div>
+        <div class="donut-legend" id="donutLegend"></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="font-size:16px;margin-bottom:14px;">Por persona</div>
+    <div class="person-cards-grid" id="personCards">
+      <div class="empty" style="grid-column:1/-1"><div class="empty-icon">👥</div><p>Agrega perfiles y gastos para ver los totales.</p></div>
+    </div>
+
+    <div style="text-align:center; margin-top:8px;">
+      <div class="btn-export-row">
+        <button class="btn-pdf" onclick="generarPDF()">📄 Reporte PDF</button>
+        <button class="btn-csv" onclick="exportCSV()">📊 Exportar CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GASTOS -->
+  <div class="page" id="page-gastos">
+    <div class="section-title"><span class="eyebrow">Página 02</span><span class="title-text">Registrar gasto</span></div>
+    <div class="box">
+      <div class="form-title" id="expFormTitle">➕ Nuevo gasto</div>
+      <div class="form-row three">
+        <div class="field"><label>Descripción</label><input type="text" id="expDesc" placeholder="Ej: Cena en restaurante"></div>
+        <div class="field"><label>Monto ($)</label><input type="number" id="expAmount" placeholder="0.00" step="0.01" min="0"></div>
+        <div class="field"><label>Fecha</label><input type="date" id="expDate"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Tarjeta</label><select id="expCard"><option value="">— Seleccionar tarjeta —</option></select></div>
+        <div class="field"><label>¿Quién pagó?</label><select id="expPerson"><option value="">— Seleccionar persona —</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Categoría</label>
+          <select id="expCat">
+            <option value="comida">🍔 Comida</option>
+            <option value="transporte">🚗 Transporte</option>
+            <option value="hogar">🏠 Hogar</option>
+            <option value="salud">💊 Salud</option>
+            <option value="ocio">🎉 Ocio</option>
+            <option value="ropa">👕 Ropa</option>
+            <option value="otro">📦 Otro</option>
+          </select>
+        </div>
+        <div class="field"><label>Nota (opcional)</label><input type="text" id="expNote" placeholder="Detalle..."></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn-primary" id="expSaveBtn" onclick="saveExpense()">Guardar gasto</button>
+        <button class="btn-topbar" id="expCancelBtn" onclick="cancelEditExpense()" style="display:none;border-color:var(--rule);">Cancelar edición</button>
+      </div>
+    </div>
+
+    <div class="section-title" style="font-size:16px;margin-bottom:10px;">Historial</div>
+    <div class="search-box"><input type="text" id="expSearch" placeholder="Buscar por descripción o nota..." oninput="renderExpenses()"></div>
+    <div class="card-pills" id="gastosMonthPills" style="margin-bottom:10px;"></div>
+    <div class="card-pills" id="gastosPills"></div>
+    <div class="filter-row" id="filterButtons"></div>
+    <div class="expense-list" id="expenseList">
+      <div class="empty"><div class="empty-icon">💸</div><p>No hay gastos registrados.</p></div>
+    </div>
+  </div>
+
+  <!-- GESTIÓN (Tarjetas, Cortes, Deudas, Perfiles) -->
+  <div class="page" id="page-gestion">
+    <div class="section-title"><span class="eyebrow">Gestión</span><span class="title-text">⚙️ Mi dinero</span></div>
+    
+    <!-- Selector de subsección -->
+    <div class="box" style="margin-bottom:20px;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="tab-selector" onclick="switchGestionView('tarjetas', this)">💳 Tarjetas</button>
+        <button class="tab-selector" onclick="switchGestionView('cortes', this)">✂️ Cortes</button>
+        <button class="tab-selector" onclick="switchGestionView('deudas', this)">📋 Deudas</button>
+        <button class="tab-selector" onclick="switchGestionView('perfiles', this)">👥 Perfiles</button>
+      </div>
+    </div>
+
+    <div id="gestion-empty" class="empty" style="padding:40px 20px;"><div class="empty-icon">📂</div><p>Selecciona una sección arriba para comenzar</p></div>
+
+    <!-- TARJETAS - Subsección -->
+    <div id="gestion-tarjetas" class="gestion-view" style="display:none;">
+      <div class="cards-scroll" id="cardsList"></div>
+      <div class="box">
+        <div class="form-title">➕ Nueva tarjeta</div>
+        <div class="form-row three">
+          <div class="field"><label>Nombre / Banco</label><input type="text" id="cardName" placeholder="Ej: BBVA, Banamex, Amex..."></div>
+          <div class="field"><label>Últimos 4 dígitos (opcional)</label><input type="text" id="cardLast4" placeholder="1234" maxlength="4"></div>
+          <div class="field"><label>Día de corte</label><input type="number" id="cardCutDay" placeholder="Ej: 15" min="1" max="31"></div>
+        </div>
+        <div class="field" style="margin-bottom:16px;">
+          <label>Color de la tarjeta</label>
+          <div class="color-options" id="cardColorOptions"></div>
+        </div>
+        <button class="btn-primary" onclick="addCard()">Agregar tarjeta</button>
+      </div>
+    </div>
+
+    <!-- CORTES - Subsección -->
+    <div id="gestion-cortes" class="gestion-view" style="display:none;">
+      <div class="card-pills" id="cortesPeriodoPills" style="margin-bottom:20px;"></div>
+      <div id="cortesList">
+        <div class="empty"><div class="empty-icon">✂️</div><p>No hay tarjetas con día de corte configurado.</p></div>
+      </div>
+    </div>
+
+    <!-- DEUDAS - Subsección -->
+    <div id="gestion-deudas" class="gestion-view" style="display:none;">
+      <div class="box">
+        <div class="form-title">➕ Registrar deuda</div>
+        <div class="form-row">
+          <div class="field"><label>Acreedor</label><input type="text" id="deudaAcreedor" placeholder="Ej: Tarjeta, Préstamo, Amigo..."></div>
+          <div class="field"><label>Monto</label><input type="number" id="deudaMonto" step="0.01" min="0" placeholder="0.00"></div>
+        </div>
+        <div class="form-row"><div class="field"><label>Fecha</label><input type="date" id="deudaDate"></div></div>
+        <button class="btn-primary" onclick="addDeuda()">Agregar deuda</button>
+      </div>
+      <div class="box" style="overflow-x:auto;"><div id="deudaList"></div></div>
+    </div>
+
+    <!-- PERFILES - Subsección -->
+    <div id="gestion-perfiles" class="gestion-view" style="display:none;">
+      <div class="box">
+        <div class="form-title">➕ Agregar perfil</div>
+        <div class="form-row">
+          <div class="field"><label>Nombre</label><input type="text" id="profileName" placeholder="Ej: Yo, Pareja, Amigo..."></div>
+          <div class="field"><label>Rol</label><input type="text" id="profileRole" placeholder="Ej: Titular, Secundario..."></div>
+        </div>
+        <div class="field" style="margin-bottom:16px;"><label>Color</label><div class="color-options" id="profileColorOptions"></div></div>
+        <button class="btn-primary" onclick="addProfile()">Agregar perfil</button>
+      </div>
+      <div id="profilesList"></div>
+    </div>
+  </div>
+
+  <!-- PRESUPUESTOS -->
+  <div class="page" id="page-presupuestos">
+    <div class="section-title"><span class="eyebrow">Página 05</span><span class="title-text">Presupuestos mensuales</span></div>
+    <p style="font-size:13px;color:var(--ink-soft);margin-bottom:18px;max-width:520px;">Define un límite mensual por categoría. La barra se llena con lo gastado en el mes en curso y cambia de color si te acercas o pasas el límite.</p>
+    <div class="box">
+      <div class="form-title">🎯 Progreso del mes</div>
+      <div id="budgetList"></div>
+    </div>
+  </div>
+
+  <!-- DEUDAS -->
+  <div class="page" id="page-deudas">
+    <div class="section-title"><span class="eyebrow">Página 08</span><span class="title-text">Mis deudas</span></div>
+
+    <div class="total-hero" style="margin-bottom:24px;">
+      <div class="total-hero-left">
+        <div class="lbl">Total que debo</div>
+        <div class="amt mono" id="deudasTotal">$0.00</div>
+      </div>
+      <div class="total-hero-right">
+        <div class="hero-stat"><div class="hero-stat-val mono" id="deudasCount">0</div><div class="hero-stat-label">Deudas</div></div>
+        <div class="hero-stat"><div class="hero-stat-val mono" id="deudasPagadas">0</div><div class="hero-stat-label">Pagadas</div></div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="form-title">➕ Nueva deuda</div>
+      <div class="form-row three">
+        <div class="field"><label>¿A quién le debo?</label><input type="text" id="deudaAcreedor" placeholder="Ej: Juan, Banco, Amigo..."></div>
+        <div class="field"><label>Monto ($)</label><input type="number" id="deudaMonto" placeholder="0.00" step="0.01" min="0"></div>
+        <div class="field"><label>Categoría</label>
+          <select id="deudaCat">
+            <option value="prestamo">💵 Préstamo personal</option>
+            <option value="servicio">🔧 Servicio</option>
+            <option value="renta">🏠 Renta</option>
+            <option value="otro">📦 Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="field"><label>Nota (opcional)</label><input type="text" id="deudaNota" placeholder="Ej: Dinero que me prestó para el coche..."></div>
+      </div>
+      <button class="btn-primary" onclick="addDeuda()">Guardar deuda</button>
+    </div>
+
+    <div class="section-title" style="font-size:16px;margin-bottom:12px;">Listado</div>
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="setDeudaFilter('todas',this)">Todas</button>
+      <button class="filter-btn" onclick="setDeudaFilter('pendientes',this)">Pendientes</button>
+      <button class="filter-btn" onclick="setDeudaFilter('pagadas',this)">Pagadas</button>
+    </div>
+    <div class="expense-list" id="deudasList">
+      <div class="empty"><div class="empty-icon">💰</div><p>No hay deudas registradas.</p></div>
+    </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const COLORS = ['#8b5e34','#a6432e','#3f6b4d','#4a7fb5','#7b5ea7','#c9a227','#c8863e','#c44569','#1abc9c','#2c3e50'];
+const GRADIENTS = [
+  ['#8b5e34','#b98a52'], ['#a6432e','#c8663f'], ['#3f6b4d','#5a9670'],
+  ['#4a7fb5','#2c5f8a'], ['#7b5ea7','#a07fd4'], ['#c44569','#e8799a'],
+  ['#1a3a5c','#2d6091'], ['#7a5f2d','#c8863e'],
+];
+const CAT_EMOJI = {comida:'🍔',transporte:'🚗',hogar:'🏠',salud:'💊',ocio:'🎉',ropa:'👕',otro:'📦'};
+const CAT_COLOR = {comida:'#c8863e',transporte:'#4a7fb5',hogar:'#7b5ea7',salud:'#3a9e6e',ocio:'#c9a227',ropa:'#a6432e',otro:'#8a8478'};
+const CAT_LIST = ['comida','transporte','hogar','salud','ocio','ropa','otro'];
+const STORAGE_KEY = 'mis-cuentas-state';
+
+let state = {cards:[],profiles:[],expenses:[],deudas:[],budgets:{}};
+let selCardGradient = 0, selProfileColor = COLORS[2];
+let filterCardId = 'all', filterPersonId = 'all', filterMonthId = 'all', resumeCardId = 'all', resumePeriodoFilter = 'current', deudaFilter = 'todas', cortePeriodoFilter = 'current';
+
+/* ── PERSISTENCIA ──
+   Dentro de Claude.ai (vista de artefacto) se usa window.storage.
+   Fuera de Claude (GitHub Pages, acceso directo en el iPhone, etc.)
+   ese objeto no existe, así que se usa localStorage del navegador,
+   que sí persiste entre cierres de la app/pestaña en ese caso. */
+const hasCloudStorage = (typeof window !== 'undefined' && window.storage && typeof window.storage.get === 'function');
+
+function fillStateDefaults(d) {
+  if(!d.cards) d.cards=[]; 
+  if(!d.profiles) d.profiles=[]; 
+  if(!d.expenses) d.expenses=[]; 
+  if(!d.deudas) d.deudas=[]; 
+  if(!d.budgets) d.budgets={};
+  return d;
+}
+
+async function loadState() {
+  try {
+    if (hasCloudStorage) {
+      const r = await window.storage.get(STORAGE_KEY, false);
+      if (r && r.value) return fillStateDefaults(JSON.parse(r.value));
+    } else {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return fillStateDefaults(JSON.parse(raw));
+    }
+  } catch(e) { console.error('No se pudo cargar el guardado previo:', e); }
+  return {cards:[],profiles:[],expenses:[],deudas:[],budgets:{},investments:[],contributions:[],investSettings:{exchangeRate:18.50,rebalanceMode:false,tolerance:2}};
+}
+function save() {
+  try {
+    const json = JSON.stringify(state);
+    if (hasCloudStorage) {
+      window.storage.set(STORAGE_KEY, json, false).catch(err=>console.error('Error al guardar (nube):',err));
+    } else {
+      localStorage.setItem(STORAGE_KEY, json);
+    }
+  } catch(e) { console.error('Error al guardar:', e); showToast('⚠️ No se pudo guardar. ¿Modo privado activado?'); }
+}
+
+function fmt(n) { return '$'+(n||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function initials(n) { return n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+function cardColor(c) { return (GRADIENTS[c.gradient]||GRADIENTS[0])[0]; }
+function cardGrad(c)  { const g=GRADIENTS[c.gradient]||GRADIENTS[0]; return `linear-gradient(150deg,${g[0]},${g[1]})`; }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ── MESES ── */
+const MESES_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function getMonthsFromExpenses() {
+  const months = {};
+  state.expenses.forEach(e => {
+    if(!e.date) return;
+    const [y, m] = e.date.split('-');
+    const key = `${y}-${m}`;
+    if(!months[key]) months[key] = { key, label: `${MESES_ES[parseInt(m)-1]} ${y}` };
+  });
+  return Object.values(months).sort((a,b) => b.key.localeCompare(a.key));
+}
+
+function renderMonthPills(containerId, currentMonthId, setFn) {
+  const w = document.getElementById(containerId); if(!w) return;
+  const months = getMonthsFromExpenses();
+  if(!months.length){ w.innerHTML=''; return; }
+  let h = `<div class="card-pill${currentMonthId==='all'?' active':''}" onclick="${setFn}('all',this)">📅 Todos los meses</div>`;
+  months.forEach(mo => {
+    h += `<div class="card-pill${currentMonthId===mo.key?' active':''}" onclick="${setFn}('${mo.key}',this)">${mo.label}</div>`;
+  });
+  w.innerHTML = h;
+}
+
+function setGastosMonth(key, el) {
+  filterMonthId = key;
+  document.querySelectorAll('#gastosMonthPills .card-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  renderExpenses();
+}
+
+/* ── PAGES ── */
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='resumen')  renderResumen();
+  if(name==='gastos')   { renderGastosPills(); renderFilterBtns(); renderExpenses(); }
+  if(name==='presupuestos') renderBudgets();
+}
+
+function switchGestionView(view, btn) {
+  document.querySelectorAll('.gestion-view').forEach(v=>v.style.display='none');
+  document.getElementById('gestion-empty').style.display='none';
+  document.querySelectorAll('.tab-selector').forEach(b=>b.classList.remove('active'));
+  document.getElementById('gestion-'+view).style.display='block';
+  if(btn) btn.classList.add('active');
+  
+  if(view==='tarjetas') renderCardsList();
+  if(view==='cortes') renderCortes();
+  if(view==='deudas') renderDeudas();
+  if(view==='perfiles') renderProfiles();
+}
+
+/* ── COLOR PICKERS ── */
+function initCardColors() {
+  const w = document.getElementById('cardColorOptions'); w.innerHTML='';
+  GRADIENTS.forEach((g,i) => {
+    const s=document.createElement('div');
+    s.className='color-swatch'+(i===0?' selected':'');
+    s.style.background=`linear-gradient(135deg,${g[0]},${g[1]})`;
+    s.onclick=()=>{ selCardGradient=i; w.querySelectorAll('.color-swatch').forEach(x=>x.classList.remove('selected')); s.classList.add('selected'); };
+    w.appendChild(s);
+  });
+}
+function initProfileColors() {
+  const w = document.getElementById('profileColorOptions'); w.innerHTML='';
+  COLORS.forEach((c,i) => {
+    const s=document.createElement('div');
+    s.className='color-swatch'+(i===2?' selected':'');
+    s.style.background=c;
+    s.onclick=()=>{ selProfileColor=c; w.querySelectorAll('.color-swatch').forEach(x=>x.classList.remove('selected')); s.classList.add('selected'); };
+    w.appendChild(s);
+  });
+}
+
+/* ── TARJETAS ── */
+function addCard() {
+  const name = document.getElementById('cardName').value.trim();
+  const last4 = document.getElementById('cardLast4').value.replace(/\D/g,'').slice(0,4);
+  const cutDay = parseInt(document.getElementById('cardCutDay').value) || null;
+  if(!name){ showToast('⚠️ Escribe el nombre del banco'); return; }
+  if(cutDay && (cutDay < 1 || cutDay > 31)){ showToast('⚠️ El día de corte debe ser entre 1 y 31'); return; }
+  state.cards.push({id:Date.now(), name, last4, gradient:selCardGradient, cutDay: cutDay || null});
+  save();
+  document.getElementById('cardName').value='';
+  document.getElementById('cardLast4').value='';
+  document.getElementById('cardCutDay').value='';
+  renderCardsList(); refreshSelects(); showToast('✅ Tarjeta "'+name+'" agregada');
+}
+function deleteCard(id) {
+  if(!confirm('¿Eliminar esta tarjeta? Los gastos quedarán sin tarjeta asignada.')) return;
+  state.cards = state.cards.filter(c=>c.id!==id);
+  state.expenses.forEach(e=>{ if(e.cardId===id) e.cardId=null; });
+  save(); renderCardsList(); refreshSelects(); renderResumen(); showToast('🗑️ Tarjeta eliminada');
+}
+function diasParaCorte(cutDay) {
+  const hoy = new Date(); const d = hoy.getDate();
+  let dias = cutDay - d;
+  if(dias < 0) { const nextMonth = new Date(hoy.getFullYear(), hoy.getMonth()+1, cutDay); dias = Math.round((nextMonth - hoy)/86400000); }
+  return dias;
+}
+function renderCardsList() {
+  const el = document.getElementById('cardsList'); if(!el) return;
+  let html = state.cards.map(c => {
+    const total = state.expenses.filter(e=>e.cardId===c.id).reduce((s,e)=>s+e.amount,0);
+    const count = state.expenses.filter(e=>e.cardId===c.id).length;
+    const g = GRADIENTS[c.gradient]||GRADIENTS[0];
+    let cortInfo = c.cutDay ? '✂️ día '+c.cutDay : count+' gasto'+(count!==1?'s':'');
+    if(c.cutDay){ const dias = diasParaCorte(c.cutDay); if(dias<=5) cortInfo += ` · corte en ${dias}d`; }
+    return `<div class="credit-card" style="--c1:${g[0]};--c2:${g[1]}">
+      <button class="cc-delete" onclick="event.stopPropagation();deleteCard(${c.id})">✕</button>
+      <div class="cc-bank">${c.name}</div>
+      <div class="cc-total-label">Total acumulado</div>
+      <div class="cc-total mono">${fmt(total)}</div>
+      <div class="cc-bottom">
+        <div class="cc-last4">${c.last4?'•••• '+c.last4:'——'}</div>
+        <div class="cc-count">${cortInfo}</div>
+      </div>
+    </div>`;
+  }).join('');
+  el.innerHTML = html;
+}
+
+/* ── PERFILES ── */
+function addProfile() {
+  const name=document.getElementById('profileName').value.trim();
+  const role=document.getElementById('profileRole').value.trim();
+  if(!name){ showToast('⚠️ Escribe un nombre'); return; }
+  if(state.profiles.find(p=>p.name.toLowerCase()===name.toLowerCase())){ showToast('⚠️ Ya existe ese perfil'); return; }
+  state.profiles.push({id:Date.now(),name,role:role||'Miembro',color:selProfileColor});
+  save();
+  document.getElementById('profileName').value='';
+  document.getElementById('profileRole').value='';
+  renderProfiles(); refreshSelects(); showToast('✅ Perfil "'+name+'" creado');
+}
+function deleteProfile(id) {
+  if(!confirm('¿Eliminar este perfil?')) return;
+  state.profiles=state.profiles.filter(p=>p.id!==id);
+  save(); renderProfiles(); refreshSelects(); renderResumen(); showToast('🗑️ Perfil eliminado');
+}
+function renderProfiles() {
+  const g=document.getElementById('profilesGrid');
+  if(!state.profiles.length){ g.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">👤</div><p>No hay perfiles. Agrega uno abajo.</p></div>'; return; }
+  g.innerHTML=state.profiles.map(p=>{
+    const total=state.expenses.filter(e=>e.personId===p.id).reduce((s,e)=>s+e.amount,0);
+    const count=state.expenses.filter(e=>e.personId===p.id).length;
+    return `<div class="profile-card">
+      <button class="profile-delete" onclick="deleteProfile(${p.id})">✕</button>
+      <div class="profile-big-avatar" style="background:${p.color}">${initials(p.name)}</div>
+      <div class="profile-card-name">${p.name}</div>
+      <div class="profile-card-role">${p.role}</div>
+      <div class="profile-card-stat mono">${fmt(total)}</div>
+      <div class="profile-card-stat-label">${count} gasto${count!==1?'s':''}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── SELECTS ── */
+function refreshSelects() {
+  const cs=document.getElementById('expCard');
+  if(cs){ cs.innerHTML='<option value="">— Seleccionar tarjeta —</option>'; state.cards.forEach(c=>cs.innerHTML+=`<option value="${c.id}">${c.name}${c.last4?' ••'+c.last4:''}</option>`); }
+  const ps=document.getElementById('expPerson');
+  if(ps){ ps.innerHTML='<option value="">— Seleccionar persona —</option>'; state.profiles.forEach(p=>ps.innerHTML+=`<option value="${p.id}">${p.name}</option>`); }
+  renderGastosPills(); renderResumePills();
+}
+
+/* ── PILLS ── */
+function renderGastosPills() {
+  const w=document.getElementById('gastosPills'); if(!w) return;
+  let h=`<div class="card-pill${filterCardId==='all'?' active':''}" onclick="setGastosCard('all',this)"><span>Todas</span></div>`;
+  state.cards.forEach(c=>{ h+=`<div class="card-pill${filterCardId==c.id?' active':''}" onclick="setGastosCard(${c.id},this)"><div class="pill-dot" style="background:${cardColor(c)}"></div><span>${c.name}</span></div>`; });
+  w.innerHTML=h;
+  renderMonthPills('gastosMonthPills', filterMonthId, 'setGastosMonth');
+}
+function setGastosCard(id,el) {
+  filterCardId=id; filterPersonId='all';
+  document.querySelectorAll('#gastosPills .card-pill').forEach(p=>p.classList.remove('active')); el.classList.add('active');
+  renderFilterBtns(); renderExpenses();
+}
+function renderFilterBtns() {
+  const w=document.getElementById('filterButtons'); if(!w) return;
+  let h=`<button class="filter-btn${filterPersonId==='all'?' active':''}" onclick="setGastosPersona('all',this)">Todos</button>`;
+  state.profiles.forEach(p=>{ h+=`<button class="filter-btn${filterPersonId==p.id?' active':''}" onclick="setGastosPersona(${p.id},this)">${p.name}</button>`; });
+  w.innerHTML=h;
+}
+function setGastosPersona(id,el) {
+  filterPersonId=id; document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderExpenses();
+}
+function renderResumePeriodoPills() {
+  const w = document.getElementById('resumePeriodoPills'); if(!w) return;
+  const periodosSet = {};
+  state.expenses.forEach(e => {
+    if(!e.date) return;
+    if(resumeCardId !== 'all' && e.cardId != resumeCardId) return;
+    const card = state.cards.find(c=>c.id===e.cardId);
+    const key = (card && card.cutDay) ? getPeriodoKey(e.date, card.cutDay) : e.date.slice(0, 7);
+    if(key) periodosSet[key] = true;
+  });
+  const keys = Object.keys(periodosSet).sort((a,b)=>b.localeCompare(a));
+  if(!keys.length){ w.innerHTML=''; return; }
+  if(resumePeriodoFilter !== 'all' && !keys.includes(resumePeriodoFilter)) resumePeriodoFilter = 'all';
+  let h = `<button class="seg-btn${resumePeriodoFilter==='all'?' active':''}" onclick="setResumePeriodo('all',this)">📋 Todos</button>`;
+  keys.forEach(key => { h += `<button class="seg-btn${resumePeriodoFilter===key?' active':''}" onclick="setResumePeriodo('${key}',this)">${getPeriodoLabel(key)}</button>`; });
+  w.innerHTML = h;
+}
+function setResumePeriodo(key, el) {
+  resumePeriodoFilter = key;
+  document.querySelectorAll('#resumePeriodoPills .seg-btn').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  renderResumenData();
+}
+function renderResumePills() {
+  const w=document.getElementById('resumePills'); if(!w) return;
+  let h=`<button class="seg-btn${resumeCardId==='all'?' active':''}" onclick="setResumeCard('all',this)">Todas</button>`;
+  state.cards.forEach(c=>{ h+=`<button class="seg-btn${resumeCardId==c.id?' active':''}" onclick="setResumeCard(${c.id},this)"><div class="pill-dot" style="background:${cardColor(c)}"></div>${c.name}${c.last4?' ••'+c.last4:''}</button>`; });
+  w.innerHTML=h;
+  renderResumePeriodoPills();
+}
+function setResumeCard(id,el) {
+  resumeCardId=id;
+  document.querySelectorAll('#resumePills .seg-btn').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  renderResumePeriodoPills();
+  renderResumenData();
+}
+
+/* ── GASTOS ── */
+let editingExpenseId = null;
+
+function saveExpense() {
+  const desc=document.getElementById('expDesc').value.trim();
+  const amount=parseFloat(document.getElementById('expAmount').value);
+  const date=document.getElementById('expDate').value;
+  const cardId=parseInt(document.getElementById('expCard').value);
+  const pid=parseInt(document.getElementById('expPerson').value);
+  const cat=document.getElementById('expCat').value;
+  const note=document.getElementById('expNote').value.trim();
+  if(!desc){ showToast('⚠️ Escribe una descripción'); return; }
+  if(!amount||amount<=0){ showToast('⚠️ Ingresa un monto válido'); return; }
+  if(!cardId){ showToast('⚠️ Selecciona una tarjeta'); return; }
+  if(!pid){ showToast('⚠️ Selecciona una persona'); return; }
+  if(!date){ showToast('⚠️ Selecciona una fecha'); return; }
+
+  if(editingExpenseId) {
+    const e = state.expenses.find(x=>x.id===editingExpenseId);
+    if(e) { Object.assign(e, {desc,amount,date,cardId,personId:pid,cat,note}); }
+    save();
+    cancelEditExpense();
+    renderGastosPills(); renderExpenses(); renderCardsList(); renderResumen(); showToast('✅ Gasto actualizado');
+    return;
+  }
+
+  state.expenses.unshift({id:Date.now(),desc,amount,date,cardId,personId:pid,cat,note});
+  save();
+  document.getElementById('expDesc').value='';
+  document.getElementById('expAmount').value='';
+  document.getElementById('expNote').value='';
+  renderGastosPills(); renderExpenses(); renderCardsList(); renderResumen(); showToast('✅ Gasto guardado');
+}
+
+function editExpense(id) {
+  const e = state.expenses.find(x=>x.id===id);
+  if(!e) return;
+  editingExpenseId = id;
+  document.getElementById('expDesc').value = e.desc || '';
+  document.getElementById('expAmount').value = e.amount;
+  document.getElementById('expDate').value = e.date || '';
+  document.getElementById('expCard').value = e.cardId || '';
+  document.getElementById('expPerson').value = e.personId || '';
+  document.getElementById('expCat').value = e.cat || 'otro';
+  document.getElementById('expNote').value = e.note || '';
+  document.getElementById('expFormTitle').textContent = '✏️ Editando gasto';
+  document.getElementById('expSaveBtn').textContent = 'Guardar cambios';
+  document.getElementById('expCancelBtn').style.display = 'inline-flex';
+  document.querySelector('#page-gastos .box').scrollIntoView({behavior:'smooth', block:'start'});
+  showToast('✏️ Editando: '+e.desc);
+}
+
+function cancelEditExpense() {
+  editingExpenseId = null;
+  document.getElementById('expDesc').value='';
+  document.getElementById('expAmount').value='';
+  document.getElementById('expDate').valueAsDate = new Date();
+  document.getElementById('expCard').value='';
+  document.getElementById('expPerson').value='';
+  document.getElementById('expCat').value='comida';
+  document.getElementById('expNote').value='';
+  document.getElementById('expFormTitle').textContent = '➕ Nuevo gasto';
+  document.getElementById('expSaveBtn').textContent = 'Guardar gasto';
+  document.getElementById('expCancelBtn').style.display = 'none';
+}
+
+function deleteExpense(id) {
+  if(editingExpenseId===id) cancelEditExpense();
+  state.expenses=state.expenses.filter(e=>e.id!==id);
+  save(); renderExpenses(); renderCardsList(); renderResumen(); showToast('🗑️ Gasto eliminado');
+}
+function renderExpenses() {
+  const list=document.getElementById('expenseList');
+  let items=state.expenses;
+  if(filterCardId!=='all') items=items.filter(e=>e.cardId==filterCardId);
+  if(filterPersonId!=='all') items=items.filter(e=>e.personId==filterPersonId);
+  if(filterMonthId!=='all') items=items.filter(e=>e.date&&e.date.slice(0,7)===filterMonthId);
+  const q = (document.getElementById('expSearch')?.value||'').trim().toLowerCase();
+  if(q) items=items.filter(e=>(e.desc||'').toLowerCase().includes(q)||(e.note||'').toLowerCase().includes(q));
+  if(!items.length){ list.innerHTML='<div class="empty"><div class="empty-icon">💸</div><p>No hay gastos con estos filtros.</p></div>'; return; }
+  list.innerHTML=items.map(e=>{
+    const person=state.profiles.find(p=>p.id===e.personId);
+    const card=state.cards.find(c=>c.id===e.cardId);
+    const pName=person?person.name:'Desconocido';
+    const pColor=person?person.color:'#888';
+    const pInit=person?initials(person.name):'?';
+    const cColor=card?cardColor(card):'#888';
+    const cName=card?card.name:'Sin tarjeta';
+    const ds=e.date?new Date(e.date+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):'';
+    return `<div class="expense-item${editingExpenseId===e.id?' editing':''}">
+      <div class="expense-cat-dot cat-${e.cat}"></div>
+      <div class="expense-info">
+        <div class="expense-desc">${CAT_EMOJI[e.cat]||'📦'} ${e.desc}</div>
+        <div class="expense-meta">
+          ${ds}
+          <span class="expense-card-tag" style="background:${cColor}">💳 ${cName}</span>
+          ${e.note?'· '+e.note:''}
+        </div>
+      </div>
+      <div class="expense-person"><div class="mini-avatar" style="background:${pColor}">${pInit}</div>${pName}</div>
+      <div class="expense-amount mono">${fmt(e.amount)}</div>
+      <button class="btn-edit" onclick="editExpense(${e.id})" title="Editar">✏️</button>
+      <button class="btn-danger" onclick="deleteExpense(${e.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+/* ── RESUMEN ── */
+function renderResumen() {
+  const hoy = new Date();
+  const currentKey = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+  if(resumePeriodoFilter === 'current') resumePeriodoFilter = currentKey;
+  renderResumePills();
+  renderResumenData();
+}
+function renderDonut(exps) {
+  const svg = document.getElementById('donutSvg'); const legend = document.getElementById('donutLegend');
+  const total = exps.reduce((s,e)=>s+e.amount,0);
+  document.getElementById('donutTotal').textContent = total>0 ? '$'+(total>=1000?(total/1000).toFixed(1)+'k':total.toFixed(0)) : '$0';
+  if(!total){ svg.innerHTML=`<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--rule)" stroke-width="5"></circle>`; legend.innerHTML='<div class="empty" style="padding:6px;"><p style="font-size:11px;">Sin gastos aún</p></div>'; return; }
+  const byCat = {};
+  CAT_LIST.forEach(c=>byCat[c]=0);
+  exps.forEach(e=>{ byCat[e.cat]=(byCat[e.cat]||0)+e.amount; });
+  const entries = CAT_LIST.map(c=>({cat:c,val:byCat[c]||0})).filter(x=>x.val>0).sort((a,b)=>b.val-a.val);
+  let offset = 25, circles='';
+  entries.forEach(en=>{
+    const pct = (en.val/total)*100;
+    circles += `<circle cx="21" cy="21" r="15.9" fill="none" stroke="${CAT_COLOR[en.cat]}" stroke-width="5" stroke-dasharray="${pct} ${100-pct}" stroke-dashoffset="${offset}"></circle>`;
+    offset -= pct;
+  });
+  svg.innerHTML = circles;
+  legend.innerHTML = entries.map(en=>`<div class="donut-legend-row"><div class="donut-legend-dot" style="background:${CAT_COLOR[en.cat]}"></div><div class="donut-legend-name">${CAT_EMOJI[en.cat]} ${en.cat}</div><div class="donut-legend-val mono">${fmt(en.val)}</div></div>`).join('');
+}
+function renderResumenData() {
+  let exps = resumeCardId==='all' ? state.expenses : state.expenses.filter(e=>e.cardId==resumeCardId);
+  if(resumePeriodoFilter !== 'all') {
+    exps = exps.filter(e => {
+      if(!e.date) return false;
+      const card = state.cards.find(c=>c.id===e.cardId);
+      if(!card || !card.cutDay) return e.date.slice(0,7) === resumePeriodoFilter;
+      return getPeriodoKey(e.date, card.cutDay) === resumePeriodoFilter;
+    });
+  }
+  const total=exps.reduce((s,e)=>s+e.amount,0);
+  document.getElementById('heroTotal').textContent=fmt(total);
+  document.getElementById('heroMovs').textContent=exps.length;
+  document.getElementById('heroPersonas').textContent=state.profiles.length;
+
+  const deudasPendientes = state.deudas.filter(d=>!d.pagada);
+  const totalDeudas = deudasPendientes.reduce((s,d)=>s+d.monto,0);
+  document.getElementById('resumeDeudasTotal').textContent = fmt(totalDeudas);
+  document.getElementById('resumeDeudasCount').textContent = deudasPendientes.length;
+  document.getElementById('resumeTotalGeneral').textContent = fmt(total + totalDeudas);
+
+  renderDonut(exps);
+
+  const pc=document.getElementById('personCards'), bl=document.getElementById('breakdownList');
+  if(!state.profiles.length){
+    pc.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">👥</div><p>Agrega perfiles y gastos.</p></div>';
+    bl.innerHTML='<div class="empty"><div class="empty-icon">📊</div><p>Sin datos.</p></div>'; return;
+  }
+  const pts=state.profiles.map(p=>({
+    ...p,
+    total:exps.filter(e=>e.personId===p.id).reduce((s,e)=>s+e.amount,0),
+    count:exps.filter(e=>e.personId===p.id).length,
+  })).sort((a,b)=>b.total-a.total);
+  const maxT=Math.max(...pts.map(p=>p.total),1);
+  pc.innerHTML=pts.map(p=>{
+    const pct=total>0?((p.total/total)*100).toFixed(1):0;
+    return `<div class="person-total-card" style="--dot:${p.color}">
+      <div class="person-total-top">
+        <div class="person-avatar" style="background:${p.color};width:32px;height:32px;font-size:12px;">${initials(p.name)}</div>
+        <div><div class="person-total-name">${p.name}</div><div class="person-total-role">${p.role}</div></div>
+      </div>
+      <div class="person-total-amount mono" style="color:${p.color}">${fmt(p.total)}</div>
+      <div class="person-total-count">${p.count} gasto${p.count!==1?'s':''}</div>
+      <div class="person-total-pct"><span>Del total</span><span style="font-weight:600;color:${p.color}">${pct}%</span></div>
+      <div class="person-total-pct-bar"><div class="person-total-pct-fill" style="width:${pct}%;background:${p.color}"></div></div>
+    </div>`;
+  }).join('');
+  bl.innerHTML=pts.map(p=>`
+    <div class="person-row">
+      <div class="person-avatar" style="background:${p.color}">${initials(p.name)}</div>
+      <div class="person-info"><div class="person-name">${p.name}</div><div class="person-count">${p.count} gasto${p.count!==1?'s':''} · ${p.role}</div></div>
+      <div class="person-bar-wrap"><div class="person-bar-bg"><div class="person-bar" style="width:${(p.total/maxT*100).toFixed(1)}%;background:${p.color}"></div></div></div>
+      <div class="person-amount mono" style="color:${p.color}">${fmt(p.total)}</div>
+    </div>`).join('');
+}
+
+/* ── PRESUPUESTOS ── */
+function saveBudget(cat, val) {
+  const n = parseFloat(val);
+  if(!state.budgets) state.budgets = {};
+  if(!val || isNaN(n) || n<=0) { delete state.budgets[cat]; }
+  else { state.budgets[cat] = n; }
+  save(); renderBudgets();
+}
+function renderBudgets() {
+  const w = document.getElementById('budgetList'); if(!w) return;
+  const hoy = new Date();
+  const mesKey = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+  const gastosDelMes = state.expenses.filter(e=>e.date && e.date.slice(0,7)===mesKey);
+  w.innerHTML = CAT_LIST.map(cat=>{
+    const gastado = gastosDelMes.filter(e=>e.cat===cat).reduce((s,e)=>s+e.amount,0);
+    const presupuesto = (state.budgets && state.budgets[cat]) || 0;
+    const pct = presupuesto>0 ? Math.min(100,(gastado/presupuesto)*100) : 0;
+    let barColor = 'var(--sage)';
+    if(presupuesto>0){ if(gastado/presupuesto>=1) barColor='var(--rust)'; else if(gastado/presupuesto>=0.8) barColor='var(--brass)'; }
+    return `<div class="budget-row">
+      <div class="budget-info">
+        <div class="budget-name">${CAT_EMOJI[cat]} ${cat}</div>
+        <div class="budget-bar-bg"><div class="budget-bar" style="width:${presupuesto>0?pct:0}%;background:${barColor}"></div></div>
+        <div class="budget-nums"><span>${fmt(gastado)} gastado este mes</span><span>${presupuesto>0?'límite '+fmt(presupuesto):'sin límite'}</span></div>
+      </div>
+      <input type="number" class="budget-input mono" placeholder="0.00" value="${presupuesto||''}" min="0" step="10" onchange="saveBudget('${cat}',this.value)">
+    </div>`;
+  }).join('');
+}
+
+/* ── CORTES ── */
+function getPeriodoKey(dateStr, cutDay) {
+  if(!dateStr) return null;
+  const d = new Date(dateStr + 'T12:00:00');
+  const day = d.getDate();
+  let periodoYear = d.getFullYear();
+  let periodoMes = d.getMonth() + 1;
+  if(day > cutDay) { periodoMes += 1; if(periodoMes > 12) { periodoMes = 1; periodoYear++; } }
+  return `${periodoYear}-${String(periodoMes).padStart(2,'0')}`;
+}
+function getPeriodoLabel(key) { const [y, m] = key.split('-'); return `${MESES_ES[parseInt(m)-1]} ${y}`; }
+function getPeriodoDateRange(key, cutDay) {
+  const [y, m] = key.split('-').map(Number);
+  let inicioMes = m - 1, inicioYear = y;
+  if(inicioMes < 1) { inicioMes = 12; inicioYear--; }
+  const inicioDay = cutDay + 1;
+  const inicio = new Date(inicioYear, inicioMes - 1, inicioDay);
+  const fin = new Date(y, m - 1, cutDay);
+  const fmt2 = d => d.toLocaleDateString('es-MX', {day:'2-digit', month:'short'});
+  return `${fmt2(inicio)} → ${fmt2(fin)}`;
+}
+function isCurrentPeriodo(key) {
+  const hoy = new Date(); const [y, m] = key.split('-').map(Number);
+  return hoy.getFullYear() === y && (hoy.getMonth()+1) === m;
+}
+function saveCutDay(cardId, val) {
+  const day = parseInt(val);
+  const card = state.cards.find(c=>c.id===cardId);
+  if(!card) return;
+  if(!val || isNaN(day)) { card.cutDay = null; }
+  else if(day >= 1 && day <= 31) { card.cutDay = day; }
+  else { showToast('⚠️ Día inválido (1-31)'); return; }
+  save(); showToast('✅ Día de corte guardado'); renderCortes();
+}
+function togglePeriodo(id) {
+  const body = document.getElementById(id); const arrow = document.getElementById(id+'-arrow');
+  if(!body) return;
+  body.classList.toggle('open'); if(arrow) arrow.classList.toggle('open');
+}
+function renderCortesPeriodoPills() {
+  const w = document.getElementById('cortesPeriodoPills'); if(!w) return;
+  const periodosSet = {};
+  state.cards.forEach(c => {
+    if(!c.cutDay) return;
+    state.expenses.filter(e=>e.cardId===c.id && e.date).forEach(e => { const key = getPeriodoKey(e.date, c.cutDay); if(key) periodosSet[key] = true; });
+  });
+  const keys = Object.keys(periodosSet).sort((a,b)=>b.localeCompare(a));
+  if(!keys.length){ w.innerHTML=''; return; }
+  let h = `<div class="card-pill${cortePeriodoFilter==='all'?' active':''}" onclick="setCortePeriodo('all',this)">📋 Todos los periodos</div>`;
+  keys.forEach(key => { h += `<div class="card-pill${cortePeriodoFilter===key?' active':''}" onclick="setCortePeriodo('${key}',this)"><span>${getPeriodoLabel(key)}</span></div>`; });
+  w.innerHTML = h;
+}
+function setCortePeriodo(key, el) {
+  cortePeriodoFilter = key;
+  document.querySelectorAll('#cortesPeriodoPills .card-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active'); renderCortesLista();
+}
+function renderCortes() {
+  const hoy = new Date();
+  const currentKey = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+  if(cortePeriodoFilter === 'current') cortePeriodoFilter = currentKey;
+  renderCortesPeriodoPills(); renderCortesLista();
+}
+function renderCortesLista() {
+  const el = document.getElementById('cortesList'); if(!el) return;
+  if(!state.cards.length) { el.innerHTML='<div class="empty"><div class="empty-icon">💳</div><p>Agrega tarjetas primero.</p></div>'; return; }
+  el.innerHTML = state.cards.map(c => {
+    const color = cardColor(c);
+    const last4txt = c.last4 ? ` •••• ${c.last4}` : '';
+    const cutDayHtml = `<div class="corte-edit-day"><span style="font-size:12px;color:var(--ink-soft)">Día de corte:</span><input type="number" min="1" max="31" value="${c.cutDay||''}" placeholder="—" onchange="saveCutDay(${c.id}, this.value)" style="font-weight:700;"></div>`;
+    if(!c.cutDay) {
+      return `<div class="corte-card"><div class="corte-card-header"><div class="corte-card-title"><div class="corte-card-dot" style="background:${color}"></div><div><div class="corte-card-name">${c.name}${last4txt}</div><div class="corte-card-sub">Sin día de corte</div></div></div>${cutDayHtml}</div><div style="padding:0 22px 18px;"><div class="corte-sin-corte">⚠️ Configura el día de corte para ver los periodos de esta tarjeta.</div></div></div>`;
+    }
+    const dias = diasParaCorte(c.cutDay);
+    const proximoBadge = dias<=5 ? `<span class="corte-badge-proximo">corte en ${dias}d</span>` : '';
+    const todosGastos = state.expenses.filter(e=>e.cardId===c.id && e.date);
+    const periodos = {};
+    todosGastos.forEach(e => { const key = getPeriodoKey(e.date, c.cutDay); if(!key) return; if(!periodos[key]) periodos[key] = []; periodos[key].push(e); });
+    let periodoKeys = Object.keys(periodos).sort((a,b)=>b.localeCompare(a));
+    if(cortePeriodoFilter !== 'all') periodoKeys = periodoKeys.filter(k => k === cortePeriodoFilter);
+    if(!periodoKeys.length) {
+      const msg = cortePeriodoFilter === 'all' ? '📭 Sin gastos registrados para esta tarjeta.' : `📭 Sin gastos en ${getPeriodoLabel(cortePeriodoFilter)} para esta tarjeta.`;
+      return `<div class="corte-card"><div class="corte-card-header"><div class="corte-card-title"><div class="corte-card-dot" style="background:${color}"></div><div><div class="corte-card-name">${c.name}${last4txt}${proximoBadge}</div><div class="corte-card-sub">Corte día ${c.cutDay} de cada mes</div></div></div>${cutDayHtml}</div><div style="padding:0 22px 18px;"><div class="corte-sin-corte">${msg}</div></div></div>`;
+    }
+    const totalFiltrado = periodoKeys.reduce((s,k)=>s+periodos[k].reduce((ss,e)=>ss+e.amount,0),0);
+    const periodosHtml = periodoKeys.map((key) => {
+      const items = periodos[key].sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const total = items.reduce((s,e)=>s+e.amount,0);
+      const uid = 'periodo-'+c.id+'-'+key.replace('-','');
+      const gastosHtml = items.map(e => {
+        const person = state.profiles.find(p=>p.id===e.personId);
+        const ds = new Date(e.date+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'short'});
+        return `<div class="corte-gasto-row"><div class="corte-gasto-dot" style="background:${person?person.color:'#888'}"></div><div class="corte-gasto-info"><div class="corte-gasto-desc">${CAT_EMOJI[e.cat]||'📦'} ${e.desc}</div><div class="corte-gasto-meta">${ds}${person?' · '+person.name:''}${e.note?' · '+e.note:''}</div></div><div class="corte-gasto-amount mono">${fmt(e.amount)}</div></div>`;
+      }).join('');
+      return `<div class="corte-periodo"><div class="corte-periodo-header" onclick="togglePeriodo('${uid}')"><div class="corte-periodo-info"><div class="corte-periodo-label">${getPeriodoLabel(key)}</div><div class="corte-periodo-dates">${getPeriodoDateRange(key, c.cutDay)}</div></div><div class="corte-periodo-right"><span class="corte-periodo-count">${items.length} gasto${items.length!==1?'s':''}</span><span class="corte-periodo-total mono" style="color:${color}">${fmt(total)}</span><span class="corte-periodo-arrow open" id="${uid}-arrow">▶</span></div></div><div class="corte-periodo-body open" id="${uid}">${gastosHtml}</div></div>`;
+    }).join('');
+    return `<div class="corte-card"><div class="corte-card-header"><div class="corte-card-title"><div class="corte-card-dot" style="background:${color}"></div><div><div class="corte-card-name">${c.name}${last4txt}${proximoBadge}</div><div class="corte-card-sub">Corte día ${c.cutDay} · ${periodoKeys.length} periodo${periodoKeys.length!==1?'s':''} mostrado${periodoKeys.length!==1?'s':''}</div></div></div><div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">${cutDayHtml}<div style="text-align:right;"><div style="font-size:10px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px;">${cortePeriodoFilter==='all'?'Total acumulado':'Total del periodo'}</div><div class="corte-card-total mono">${fmt(totalFiltrado)}</div></div></div></div><div class="corte-periodos">${periodosHtml}</div></div>`;
+  }).join('');
+}
+
+/* ── EXPORT / IMPORT ── */
+function exportData() {
+  if(!state.cards.length && !state.expenses.length && !state.investments.length){ 
+    showToast('⚠️ No hay datos para exportar'); 
+    return; 
+  }
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));
+  a.download=`mis-cuentas-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); 
+  showToast('✅ Archivo guardado en Descargas');
+}
+function importData(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  
+  const r = new FileReader();
+  r.onerror = () => {
+    showToast('❌ No se pudo leer el archivo');
+    event.target.value = '';
+  };
+  
+  r.onload = e => {
+    event.target.value = '';
+    try {
+      const text = e.target.result;
+      if(!text || text.trim() === '') {
+        showToast('❌ El archivo está vacío');
+        return;
+      }
+      
+      let raw = JSON.parse(text);
+      if(!raw) raw = {};
+      if(typeof raw !== 'object') raw = {};
+      
+      const d = fillStateDefaults(raw);
+      
+      if(!confirm(`¿Cargar datos?\n\n• ${d.cards.length} tarjetas\n• ${d.profiles.length} perfiles\n• ${d.expenses.length} gastos\n• ${d.deudas.length} deudas\n\nEsto reemplazará los datos actuales.`)) return;
+      
+      state = d;
+      save();
+      
+      try {
+        initAll();
+      } catch(initErr) {
+        console.error('Init error (no-blocking):', initErr);
+        showToast('⚠️ Datos cargados pero hubo un error al renderizar');
+        return;
+      }
+      
+      showToast('✅ Datos importados correctamente');
+    } catch(err) {
+      console.error('Import error:', err);
+      showToast('❌ Error al importar: ' + err.message);
+    }
+  };
+  
+  r.readAsText(file);
+}
+function exportCSV() {
+  if(!state.expenses.length){ showToast('⚠️ No hay gastos para exportar'); return; }
+  const rows = [['Fecha','Descripcion','Monto','Tarjeta','Persona','Categoria','Nota']];
+  state.expenses.forEach(e=>{
+    const person = state.profiles.find(p=>p.id===e.personId);
+    const card = state.cards.find(c=>c.id===e.cardId);
+    rows.push([e.date||'', e.desc||'', e.amount, card?card.name:'', person?person.name:'', e.cat||'', e.note||'']);
+  });
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download=`gastos-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); showToast('✅ CSV descargado');
+}
+
+/* ── DEUDAS ── */
+const CAT_DEUDA_EMOJI = {prestamo:'💵', servicio:'🔧', renta:'🏠', otro:'📦'};
+function addDeuda() {
+  const acreedor = document.getElementById('deudaAcreedor').value.trim();
+  const monto    = parseFloat(document.getElementById('deudaMonto').value);
+  const cat      = document.getElementById('deudaCat').value;
+  const nota     = document.getElementById('deudaNota').value.trim();
+  if(!acreedor){ showToast('⚠️ Escribe a quién le debes'); return; }
+  if(!monto||monto<=0){ showToast('⚠️ Ingresa un monto válido'); return; }
+  state.deudas.unshift({id:Date.now(), acreedor, monto, cat, nota, pagada:false, fecha:new Date().toISOString().slice(0,10)});
+  save();
+  document.getElementById('deudaAcreedor').value=''; document.getElementById('deudaMonto').value=''; document.getElementById('deudaNota').value='';
+  renderDeudas(); showToast('✅ Deuda registrada');
+}
+function togglePagada(id) {
+  const d = state.deudas.find(d=>d.id===id); if(!d) return;
+  d.pagada = !d.pagada; save(); renderDeudas();
+  showToast(d.pagada ? '✅ Marcada como pagada' : '↩️ Marcada como pendiente');
+}
+function deleteDeuda(id) { state.deudas = state.deudas.filter(d=>d.id!==id); save(); renderDeudas(); showToast('🗑️ Deuda eliminada'); }
+function setDeudaFilter(filter, el) {
+  deudaFilter = filter;
+  document.querySelectorAll('#page-deudas .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); renderDeudas();
+}
+function renderDeudas() {
+  const total    = state.deudas.filter(d=>!d.pagada).reduce((s,d)=>s+d.monto,0);
+  const pagadas  = state.deudas.filter(d=>d.pagada).length;
+  const pendientes = state.deudas.filter(d=>!d.pagada).length;
+  document.getElementById('deudasTotal').textContent  = fmt(total);
+  document.getElementById('deudasCount').textContent  = pendientes;
+  document.getElementById('deudasPagadas').textContent = pagadas;
+  const list = document.getElementById('deudasList');
+  let items = state.deudas;
+  if(deudaFilter==='pendientes') items = items.filter(d=>!d.pagada);
+  if(deudaFilter==='pagadas')    items = items.filter(d=>d.pagada);
+  if(!items.length){ list.innerHTML='<div class="empty"><div class="empty-icon">💰</div><p>No hay deudas en esta categoría.</p></div>'; return; }
+  list.innerHTML = items.map(d=>`
+    <div class="deuda-item${d.pagada?' pagada':''}">
+      <div class="deuda-cat-dot cat-${d.cat==='otro'?'otro':d.cat}"></div>
+      <div class="deuda-info">
+        <div class="deuda-acreedor">${CAT_DEUDA_EMOJI[d.cat]||'📦'} ${d.acreedor}</div>
+        <div class="deuda-meta">
+          ${d.fecha ? new Date(d.fecha+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}) : ''}
+          ${d.nota ? ' · '+d.nota : ''}
+          &nbsp;<span class="deuda-badge ${d.pagada?'pagada':'pendiente'}">${d.pagada?'Pagada':'Pendiente'}</span>
+        </div>
+      </div>
+      <div class="deuda-amount mono${d.pagada?' pagada':''}">${fmt(d.monto)}</div>
+      <button class="btn-pagar${d.pagada?' pagada':''}" onclick="togglePagada(${d.id})">${d.pagada?'↩️ Deshacer':'✅ Pagar'}</button>
+      <button class="btn-danger" onclick="deleteDeuda(${d.id})">✕</button>
+    </div>`).join('');
+}
+
+/* ── GENERAR PDF ── */
+async function generarPDF() {
+  if(!state.expenses.length && !state.deudas.length) { showToast('⚠️ No hay datos para generar el reporte'); return; }
+  showToast('⏳ Generando PDF...');
+  if(!window.jspdf) {
+    await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+    await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const fecha = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+  const exps = resumeCardId==='all' ? state.expenses : state.expenses.filter(e=>e.cardId==resumeCardId);
+  const totalTarjetas = exps.reduce((s,e)=>s+e.amount,0);
+  const deudasPend = state.deudas.filter(d=>!d.pagada);
+  const totalDeudas = deudasPend.reduce((s,d)=>s+d.monto,0);
+  const totalGeneral = totalTarjetas + totalDeudas;
+  function hexRgb(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+  let y = 18;
+  doc.setFillColor(28,26,23); doc.rect(0,0,W,28,'F');
+  doc.setTextColor(250,246,238); doc.setFontSize(18); doc.setFont('times','bold');
+  doc.text('Mis Cuentas',14,13);
+  doc.setFontSize(8); doc.setFont('courier','normal'); doc.setTextColor(156,122,60);
+  doc.text('REPORTE GENERADO EL '+fecha.toUpperCase(),14,21);
+  y = 36;
+  const cajas=[
+    {lbl:'TOTAL TARJETAS',val:fmt(totalTarjetas),bg:[28,26,23],fg:[250,246,238]},
+    {lbl:'DEUDAS PENDIENTES',val:fmt(totalDeudas),bg:[166,67,46],fg:[255,255,255]},
+    {lbl:'TOTAL GENERAL',val:fmt(totalGeneral),bg:[63,107,77],fg:[255,255,255]},
+  ];
+  const bw=(W-28-8)/3;
+  cajas.forEach((b,i)=>{
+    const bx=14+i*(bw+4);
+    doc.setFillColor(...b.bg); doc.roundedRect(bx,y,bw,18,2,2,'F');
+    doc.setTextColor(...b.fg);
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.text(b.lbl,bx+4,y+6);
+    doc.setFontSize(11); doc.setFont('courier','bold'); doc.text(b.val,bx+4,y+14);
+  });
+  y += 26;
+  const porPersona=state.profiles.map(p=>({
+    name:p.name,role:p.role,
+    total:exps.filter(e=>e.personId===p.id).reduce((s,e)=>s+e.amount,0),
+    count:exps.filter(e=>e.personId===p.id).length,
+  })).filter(p=>p.count>0).sort((a,b)=>b.total-a.total);
+  if(porPersona.length){
+    doc.setTextColor(28,26,23); doc.setFontSize(11); doc.setFont('times','bold');
+    doc.text('Gastos por persona',14,y);
+    doc.setDrawColor(28,26,23); doc.setLineWidth(0.4); doc.line(14,y+2,W-14,y+2); y+=6;
+    doc.autoTable({
+      startY:y, head:[['Persona','Rol','Gastos','Total']],
+      body:porPersona.map(p=>[p.name,p.role,p.count+' gasto'+(p.count!==1?'s':''),fmt(p.total)]),
+      styles:{fontSize:9,cellPadding:3},
+      headStyles:{fillColor:[243,237,224],textColor:[91,86,76],fontStyle:'bold',fontSize:8},
+      columnStyles:{3:{halign:'right',fontStyle:'bold'}}, margin:{left:14,right:14},
+    });
+    y=doc.lastAutoTable.finalY+10;
+  }
+  const porTarjeta=state.cards.map(c=>({
+    card:c, gastos:exps.filter(e=>e.cardId===c.id).sort((a,b)=>new Date(b.date)-new Date(a.date)),
+    total:exps.filter(e=>e.cardId===c.id).reduce((s,e)=>s+e.amount,0),
+  })).filter(g=>g.gastos.length>0);
+  if(porTarjeta.length){
+    porTarjeta.forEach(t=>{
+      if(y>240){doc.addPage();y=18;}
+      const rgb=hexRgb((GRADIENTS[t.card.gradient]||GRADIENTS[0])[0]);
+      doc.setFillColor(...rgb); doc.roundedRect(14,y,W-28,10,2,2,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('times','bold');
+      doc.text(t.card.name+(t.card.last4?' •••• '+t.card.last4:''),18,y+6.5);
+      doc.text(fmt(t.total),W-14,y+6.5,{align:'right'});
+      y+=13;
+      doc.autoTable({
+        startY:y, head:[['Fecha','Descripcion','Persona','Categoria','Monto']],
+        body:t.gastos.map(e=>{
+          const person=state.profiles.find(p=>p.id===e.personId);
+          const ds=e.date?new Date(e.date+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):'--';
+          return[ds,e.desc+(e.note?' ('+e.note+')':''),person?person.name:'--',e.cat,fmt(e.amount)];
+        }),
+        styles:{fontSize:8,cellPadding:3},
+        headStyles:{fillColor:[243,237,224],textColor:[91,86,76],fontStyle:'bold',fontSize:7},
+        columnStyles:{4:{halign:'right',fontStyle:'bold'}}, margin:{left:14,right:14},
+      });
+      y=doc.lastAutoTable.finalY+10;
+    });
+  }
+  if(deudasPend.length){
+    if(y>240){doc.addPage();y=18;}
+    doc.setTextColor(28,26,23); doc.setFontSize(11); doc.setFont('times','bold');
+    doc.text('Deudas pendientes',14,y);
+    doc.setDrawColor(28,26,23); doc.setLineWidth(0.4); doc.line(14,y+2,W-14,y+2); y+=6;
+    doc.autoTable({
+      startY:y, head:[['A quien','Categoria','Nota','Monto']],
+      body:deudasPend.map(d=>[d.acreedor,d.cat,d.nota||'--',fmt(d.monto)]),
+      styles:{fontSize:9,cellPadding:3},
+      headStyles:{fillColor:[243,237,224],textColor:[91,86,76],fontStyle:'bold',fontSize:8},
+      columnStyles:{3:{halign:'right',fontStyle:'bold',textColor:[166,67,46]}}, margin:{left:14,right:14},
+    });
+  }
+  const totalPags=doc.internal.getNumberOfPages();
+  for(let i=1;i<=totalPags;i++){
+    doc.setPage(i);
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(180,175,168);
+    doc.text('Mis Cuentas -- Reporte personal',14,292);
+    doc.text('Pagina '+i+' de '+totalPags,W-14,292,{align:'right'});
+  }
+  const fechaArchivo=new Date().toISOString().slice(0,10);
+  doc.save('reporte-mis-cuentas-'+fechaArchivo+'.pdf');
+  showToast('PDF descargado correctamente');
+}
+
+/* ── INIT ── */
+function initAll() {
+  initCardColors(); initProfileColors();
+  renderCardsList(); renderProfiles(); refreshSelects();
+  renderGastosPills(); renderFilterBtns(); renderExpenses(); renderResumen(); renderDeudas();
+}
+(async () => {
+  document.getElementById('expDate').valueAsDate = new Date();
+  state = await loadState();
+  initAll();
+})();
+</script>
+</body>
+</html>
